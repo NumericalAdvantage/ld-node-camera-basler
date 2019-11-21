@@ -1,0 +1,23 @@
+{
+    "file-type" : "link2-node-instance-2",
+    "$id": "l2node:/link_dev/ld-node-camera-basler",
+    "specification": "l2spec:/link_dev/ld-node-camera-basler",
+    "pins" : 
+    {
+        "basler-cam-output-pin" : 
+        {
+            "dataobject-queue-capacity" : "1000dos",
+            "offers" :  
+            {
+                "BaslerCamImage" : ["l2offer:/BaslerCamImage"]
+            }
+        }
+    },
+    "user-configuration" : 
+    {
+        "CameraID" : "23129899",
+        "ImageWidth" : 1280,
+        "ImageHeight" : 1024,
+        "FrameRate" : 50
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "file-type" : "link2-node-specification-2",
+    "$id": "l2spec:/link_dev/ld-node-camera-basler",
+    "pins" : 
+    {
+        "basler-cam-output-pin": 
+        {
+            "pin-type" : "output",
+            "supplies" : 
+            {
+                "BaslerCamImage" :
+                {
+                    "data-type" :
+                    {
+                        "schema-filename" : "data/Image.bfbs",
+                        "table-name" : "link_dev.Image"
+                    }
+                }
+            }
+        }
+    },
+    "user-configuration-schema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": 
+        {
+            "CameraID" : { "type" : "string"},
+            "ImageWidth" : { "type" : "number"},
+            "ImageHeight" : { "type" : "number"},
+            "FrameRate" : { "type" : "number"}
+        },
+        "additionalProperties" : false
+    }
+}
