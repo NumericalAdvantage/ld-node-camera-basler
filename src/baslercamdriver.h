@@ -16,7 +16,7 @@
 #include <pylon/DeviceInfo.h>
 #include <pylon/TlFactory.h>
 #include <pylon/DeviceFactory.h> 
-#include <pylon/InstantCamera.h>
+//#include <pylon/InstantCamera.h>
 #include <pylon/ConfigurationEventHandler.h>
 
 #include <DRAIVE/Link2/NodeDiscovery.hpp>

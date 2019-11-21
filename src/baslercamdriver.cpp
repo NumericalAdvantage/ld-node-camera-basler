@@ -9,9 +9,96 @@
 #include <thread>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <link_dev/Interfaces/OpenCvToImage.h>
+#include <pylon/gige/BaslerGigEInstantCamera.h>
 #include "baslercamdriver.h"
 #include "GenericMatrix3D_generated.h"
 #include "Image_generated.h"
+
+typedef Pylon::CBaslerGigEInstantCamera Camera_t;
+using namespace Basler_GigECameraParams;
+typedef Camera_t::GrabResultPtr_t GrabResultPtr_t;
+
+void AutoGainContinuous(Camera_t& camera)
+{
+    // Check whether the Gain Auto feature is available.
+    if ( !IsWritable( camera.GainAuto))
+    {
+        std::cout << "The camera does not support Gain Auto." << std::endl;
+        return;
+    }
+    // Maximize the grabbed image area of interest (Image AOI).
+    if (IsWritable(camera.OffsetX))
+    {
+        camera.OffsetX.SetValue(camera.OffsetX.GetMin());
+    }
+    if (IsWritable(camera.OffsetY))
+    {
+        camera.OffsetY.SetValue(camera.OffsetY.GetMin());
+    }
+    camera.Width.SetValue(camera.Width.GetMax());
+    camera.Height.SetValue(camera.Height.GetMax());
+    // Set the Auto Function AOI for luminance statistics.
+    // Currently, AutoFunctionAOISelector_AOI1 is predefined to gather
+    // luminance statistics.
+    camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
+    camera.AutoFunctionAOIOffsetX.SetValue(camera.OffsetX.GetMin());
+    camera.AutoFunctionAOIOffsetY.SetValue(camera.OffsetY.GetMin());
+    camera.AutoFunctionAOIWidth.SetValue(camera.Width.GetMax());
+    camera.AutoFunctionAOIHeight.SetValue(camera.Height.GetMax());
+    // Set the target value for luminance control. The value is always expressed
+    // as an 8 bit value regardless of the current pixel data output format,
+    // i.e., 0 -> black, 255 -> white.
+    camera.AutoTargetValue.SetValue(80);
+
+    // When "continuous" mode is selected, the parameter value is adjusted repeatedly while images are acquired.
+    // Depending on the current frame rate, the automatic adjustments will usually be carried out for
+    // every or every other image unless the camera�s micro controller is kept busy by other tasks.
+    // The repeated automatic adjustment will proceed until the "once" mode of operation is used or
+    // until the auto function is set to "off", in which case the parameter value resulting from the latest
+    // automatic adjustment will operate unless the value is manually adjusted.
+    camera.GainAuto.SetValue(GainAuto_Continuous);
+}
+
+void AutoExposureContinuous(Camera_t& camera)
+{
+    // Check whether the Exposure Auto feature is available.
+    if ( !IsWritable( camera.ExposureAuto))
+    {
+        std::cout << "The camera does not support Exposure Auto." << std::endl;
+        return;
+    }
+    // Maximize the grabbed area of interest (Image AOI).
+    if (IsWritable(camera.OffsetX))
+    {
+        camera.OffsetX.SetValue(camera.OffsetX.GetMin());
+    }
+    if (IsWritable(camera.OffsetY))
+    {
+        camera.OffsetY.SetValue(camera.OffsetY.GetMin());
+    }
+    camera.Width.SetValue(camera.Width.GetMax());
+    camera.Height.SetValue(camera.Height.GetMax());
+    // Set the Auto Function AOI for luminance statistics.
+    // Currently, AutoFunctionAOISelector_AOI1 is predefined to gather
+    // luminance statistics.
+    camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
+    camera.AutoFunctionAOIOffsetX.SetValue(camera.OffsetX.GetMin());
+    camera.AutoFunctionAOIOffsetY.SetValue(camera.OffsetY.GetMin());
+    camera.AutoFunctionAOIWidth.SetValue(camera.Width.GetMax());
+    camera.AutoFunctionAOIHeight.SetValue(camera.Height.GetMax());
+    // Set the target value for luminance control. The value is always expressed
+    // as an 8 bit value regardless of the current pixel data output format,
+    // i.e., 0 -> black, 255 -> white.
+    camera.AutoTargetValue.SetValue(80);
+    // When "continuous" mode is selected, the parameter value is adjusted repeatedly while images are acquired.
+    // Depending on the current frame rate, the automatic adjustments will usually be carried out for
+    // every or every other image, unless the camera's microcontroller is kept busy by other tasks.
+    // The repeated automatic adjustment will proceed until the "once" mode of operation is used or
+    // until the auto function is set to "off", in which case the parameter value resulting from the latest
+    // automatic adjustment will operate unless the value is manually adjusted.
+    camera.ExposureAuto.SetValue(ExposureAuto_Continuous);
+    
+}
 
 void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
 {
@@ -79,7 +166,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth, u
                 {        
                     //We found our camera. Create a camera device which we can 
                     //use to grab images and so forth.
-                    Pylon::CInstantCamera camera(tlFactory.CreateDevice(*it));
+                    Pylon::CBaslerGigEInstantCamera camera(tlFactory.CreateDevice(*it));
 
                     camera.RegisterConfiguration(new BaslerCamConfigEvents(frameWidth,
                                                                            frameHeight,
@@ -104,6 +191,10 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth, u
                     //camera.Width.SetValue(300);
 
                     //double d = camera.ResultingFrameRate.GetValue();
+
+                    // Carry out luminance control by using the "continuous" gain auto function.
+                    AutoGainContinuous(camera);
+                    AutoExposureContinuous(camera);
 
                     camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); //Opens the capture in continuous acquisition mode.
 
