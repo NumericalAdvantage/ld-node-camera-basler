@@ -47,12 +47,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC DRAIVE::Link2-Cpp
 					                         PylonGenAPILibrary
 					                         PylonBaseLibrary
 					                         PylonGCBaseLibrary
-					                         PylonUtilityLibrary
-				                             PylonLog4CPPLibrary
-				                             PylonMathParserLibrary
-				                             PylonNodeMapDataLibrary
-				                             PylonXMLParserLibrary
-				                             PylonLogGCCLibrary)
+					                         PylonUtilityLibrary)
 
 cmake_make_installation(
         TARGETS ${PROJECT_NAME}
