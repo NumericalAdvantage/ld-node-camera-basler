@@ -11,6 +11,9 @@ package:
 source:
   git_url: ../
 
+build:
+  skip: true  # [aarch64]
+
 requirements:
   build:
     - {{ compiler("c") }}
