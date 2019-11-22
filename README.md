@@ -15,8 +15,7 @@
 
 ## The node in action
 
-- Show the reader what the node looks like in action.
-- Include screenshots etc.
+- TODO - when there is a better view of the street available. 
 
 ## Installation
 
