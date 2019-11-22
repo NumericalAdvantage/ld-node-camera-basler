@@ -11,8 +11,6 @@
 - The camera used to develop this node was a BASLER acA1300-75gc. The camera can be powered over ethernet or via a hirose connector. In this particular setup I have used the PoE solution. To do this, a D-Link DGS-1008P Gigabit POE network switch was used.  
 - Tools called "IpConfigurator" and "PylonViewer" are crucial in setting up the SDK and in troubleshooting. They are part of the SDK download which is available from [here](https://www.baslerweb.com/en/sales-support/downloads/software-downloads/).
 
-
-
 ## The node in action
 
 - TODO - when there is a better view of the street available. 
@@ -32,7 +30,8 @@ ld-node-camera-basler --instance-file instance.json
 ## Specification
 
 This node implements the following RFCs:
-- 
+- https://draive.com/link_dev/rfc/053/README/
+ 
 
 ## Contribution
 
