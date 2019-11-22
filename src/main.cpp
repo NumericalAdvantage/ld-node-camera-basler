@@ -46,6 +46,7 @@ int main(int argc, char** argv)
 
 /*
     References:
-    Documentation that this shipped with the proprietary Pylon SDK.
-    Heavy use of the code samples that also come with the SDK has been made in this project. 
+    1. Documentation that this shipped with the proprietary Pylon SDK.
+    2. Heavy use of the code samples that also come with the SDK has been made in this project. 
+    3. https://www.optophysiology.uni-freiburg.de/Howto/howto_high_framerate_recordings
 */
