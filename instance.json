@@ -18,6 +18,10 @@
         "CameraID" : "23129899",
         "ImageWidth" : 1280,
         "ImageHeight" : 1024,
-        "FrameRate" : 50
+        "FrameRate" : 60,
+        "LuminanceControl" : 90,
+        "AutoGainOnce" : true,
+        "AutoExposureContinuous" : true,
+        "AutoGainContinuous" : false
     }
 }

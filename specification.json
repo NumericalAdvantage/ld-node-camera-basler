@@ -27,7 +27,11 @@
             "CameraID" : { "type" : "string"},
             "ImageWidth" : { "type" : "number"},
             "ImageHeight" : { "type" : "number"},
-            "FrameRate" : { "type" : "number"}
+            "FrameRate" : { "type" : "number"},
+            "LuminanceControl" : { "type" : "number"},
+            "AutoGainOnce" : { "type" : "boolean"},
+            "AutoExposureContinuous" : { "type" : "boolean"},
+            "AutoGainContinuous" : { "type" : "boolean"}
         },
         "additionalProperties" : false
     }

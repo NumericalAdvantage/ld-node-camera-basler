@@ -28,7 +28,11 @@ int main(int argc, char** argv)
                                         rootNode.getString("CameraID"),
                                         rootNode.getUInt("ImageWidth"),
                                         rootNode.getUInt("ImageHeight"),
-                                        rootNode.getUInt("FrameRate")};
+                                        rootNode.getUInt("FrameRate"),
+                                        rootNode.getUInt("LuminanceControl"),
+                                        rootNode.getBoolean("AutoGainOnce"),
+                                        rootNode.getBoolean("AutoExposureContinuous"),
+                                        rootNode.getBoolean("AutoGainContinuous")};
 
         baslercamdriver.run();     //Runs until interrupt signal is sent to the program.
         return 0;
@@ -38,3 +42,10 @@ int main(int argc, char** argv)
         return 1;
     }
 }
+
+
+/*
+    References:
+    Documentation that this shipped with the proprietary Pylon SDK.
+    Heavy use of the code samples that also come with the SDK has been made in this project. 
+*/
