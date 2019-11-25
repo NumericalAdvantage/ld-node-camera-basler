@@ -12,8 +12,9 @@
 - Tools called "IpConfigurator" and "PylonViewer" are crucial in setting up the SDK and in troubleshooting. They are part of the SDK download which is available from [here](https://www.baslerweb.com/en/sales-support/downloads/software-downloads/).
 
 ## The node in action
+- When used with ld-node-image-2d-viewer-2:
 
-- TODO - when there is a better view of the street available. 
+  ![The node in action](assets/basler_cam_demo.mp4)
 
 ## Installation
 
