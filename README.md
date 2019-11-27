@@ -31,7 +31,7 @@ ld-node-camera-basler --instance-file instance.json
 ## Specification
 
 This node implements the following RFCs:
-- https://draive.com/link_dev/rfc/rfc048/ld-node-camera-basler
+- http://draive.com/link_dev/rfc/rfc048/ld-node-camera-basler
 
 ## Contribution
 
