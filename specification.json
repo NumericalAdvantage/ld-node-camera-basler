@@ -25,14 +25,15 @@
         "properties": 
         {
             "CameraID" : { "type" : "string"},
-            "ImageWidth" : { "type" : "number"},
-            "ImageHeight" : { "type" : "number"},
-            "FrameRate" : { "type" : "number"},
-            "LuminanceControl" : { "type" : "number"},
-            "AutoGainOnce" : { "type" : "boolean"},
-            "AutoExposureContinuous" : { "type" : "boolean"},
-            "AutoGainContinuous" : { "type" : "boolean"}
+            "ImageWidth" : { "type" : "integer", "default" : 640},
+            "ImageHeight" : { "type" : "integer", "default" : 480},
+            "FrameRate" : { "type" : "number", "default" : 24},
+            "LuminanceControl" : { "type" : "integer", "default" : 100},
+            "AutoGainOnce" : { "type" : "boolean", "default" : true},
+            "AutoExposureContinuous" : { "type" : "boolean", "default" : true},
+            "AutoGainContinuous" : { "type" : "boolean", "default" : false}
         },
+        "required": ["CameraID"],
         "additionalProperties" : false
     }
 }
