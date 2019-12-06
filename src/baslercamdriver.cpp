@@ -174,9 +174,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
     Pylon::CTlFactory& TlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::DeviceInfoList_t lstDevices;
     TlFactory.EnumerateDevices(lstDevices);
-    // This smart pointer will receive the grab result data.
-    Pylon::CGrabResultPtr ptrGrabResult;
-    
+        
     std::cout << "Number of devices found: " << lstDevices.size() << std::endl;
     
     if(!lstDevices.empty()) 
@@ -205,7 +203,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     
                     camera.Open();
                     camera.MaxNumBuffer = NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE;
-                    
+
                     if(autoExposure || autoGain || autoGainOnce)
                     {
                         setUpCameraForAutoFunctions(camera, frameWidth, frameHeight, luminanceControl);
@@ -233,6 +231,8 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         // All triggered images are still waiting in the output queue
                         // and will now be retrieved.
                         // Don't wait for timeout. We want good FPS. If it works, it works. 
+                        // This smart pointer will receive the grab result data.
+                        Pylon::CGrabResultPtr ptrGrabResult;
                         while(camera.RetrieveResult(0, ptrGrabResult, Pylon::TimeoutHandling_Return)) 
                         {
                             if(ptrGrabResult->GrabSucceeded())
@@ -245,10 +245,11 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                 link_dev::Interfaces::ImageFromOpenCV(frame,
                                                                       link_dev::Format::Format_GRAY_U8);   
                                 outputPin.push(currentImage, "BaslerCamImage");
+                                ptrGrabResult.Release();
                             }
                             else
                             {
-                                std::cout << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
+                                std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
                             }
                         }
                     }
@@ -274,6 +275,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 int BaslerCamDriver::run() 
 {
     Pylon::PylonInitialize();
+    
     std::thread cameraGrabber(createCameraBySerialNrAndGrab, m_cameraID,
                                                              m_frameWidth,
                                                              m_frameHeight,
