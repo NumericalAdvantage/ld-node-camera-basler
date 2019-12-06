@@ -62,12 +62,12 @@ void AutoGainContinuous(Pylon::CBaslerGigEInstantCamera& camera)
 void AutoExposureContinuous(Pylon::CBaslerGigEInstantCamera& camera)
 {
     // Check whether the Exposure Auto feature is available.
-    if ( !IsWritable( camera.ExposureAuto))
+    if(!IsWritable(camera.ExposureAuto))
     {
         std::cout << "The camera does not support Exposure Auto." << std::endl;
         return;
     }
-   
+
     camera.ExposureAuto.SetValue(ExposureAuto_Continuous);
     return;
 }
@@ -87,6 +87,7 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         Pylon::CFloatParameter frameRate(nodemap, "AcquisitionFrameRateAbs");
         Pylon::CBooleanParameter frameRateEnable(nodemap, "AcquisitionFrameRateEnable");
         Pylon::CFloatParameter resultingFrameRate(nodemap, "ResultingFrameRateAbs");
+        Pylon::CFloatParameter autoExposureUpperLimit(nodemap, "AutoExposureTimeAbsUpperLimit");
 
         // Maximize the Image AOI.
         offsetX.TrySetToMinimum(); // Set to minimum if writable.
@@ -100,9 +101,13 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         frameRate.SetValue(m_frameRate);
         std::cout << "Frame rate after: " << frameRate.GetValue() << std::endl;
         std::cout << "Frame rate resultant: " << resultingFrameRate.GetValue() << std::endl;
-        
+    
         // Set the pixel data format.
         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
+
+        //Set an upper limit to the exposure time in microseconds to avoid frame drops in low 
+        //light conditions.
+        autoExposureUpperLimit.SetValue(EXPOSURE_TIME_UPPERLIMIT);
     }
     catch (const Pylon::GenericException& e)
     {

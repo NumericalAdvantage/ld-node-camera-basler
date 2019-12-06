@@ -30,6 +30,7 @@
 #define DEFAULT_FRAME_RATE 24
 #define DEFAULT_LUMINANCE_CONTROL 100
 #define NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE 2000
+#define EXPOSURE_TIME_UPPERLIMIT 500000.0
 
 class BaslerCamDriver : public Pylon::CConfigurationEventHandler
 {
