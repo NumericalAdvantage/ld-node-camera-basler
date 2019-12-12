@@ -104,10 +104,6 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
     
         // Set the pixel data format.
         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
-
-        //Set an upper limit to the exposure time in microseconds to avoid frame drops in low 
-        //light conditions.
-        autoExposureUpperLimit.SetValue(EXPOSURE_TIME_UPPERLIMIT);
     }
     catch (const Pylon::GenericException& e)
     {
@@ -154,7 +150,7 @@ void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64
     // as an 8 bit value regardless of the current pixel data output format,
     // i.e., 0 -> black, 255 -> white.
     camera.AutoTargetValue.SetValue(luminanceControl);
-    
+
     return;
 }
 
@@ -174,9 +170,9 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
     Pylon::CTlFactory& TlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::DeviceInfoList_t lstDevices;
     TlFactory.EnumerateDevices(lstDevices);
-        
-    std::cout << "Number of devices found: " << lstDevices.size() << std::endl;
     
+    std::cout << "Number of devices found: " << lstDevices.size() << std::endl;
+
     if(!lstDevices.empty()) 
     {
         Pylon::DeviceInfoList_t::const_iterator it;
