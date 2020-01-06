@@ -112,7 +112,7 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("Gain");
         // Remove the limits of the selected parameter
         Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);  
-
+        // Select the AutoTargetValue parameter
         Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("AutoTargetvalue");
         // Remove the limits of the selected parameter
         Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);     
@@ -174,7 +174,8 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    uint64_t frameHeight, uint64_t frameRate, 
                                    uint64_t luminanceControl, bool autoExposure,
                                    bool autoGain, bool autoGainOnce,
-                                   DRAIVE::Link2::OutputPin outputPin)
+                                   DRAIVE::Link2::OutputPin outputPin,
+                                   Pylon::WaitObjects waitObjectsContainer)
 {
     Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::PylonAutoInitTerm autoInitTerm;
@@ -207,7 +208,9 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                                      Pylon::Cleanup_Delete);
 
                     printCameraDetails(camera);
-                    
+                    //Initialize wait objects. 
+                    waitObjectsContainer.Add(camera.GetGrabResultWaitObject());
+
                     camera.Open();
                     camera.MaxNumBuffer = NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE;
                     
@@ -233,32 +236,58 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     //Opens the capture in continuous acquisition mode.
                     camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); 
 
-                    while(camera.IsGrabbing())
+                    bool terminate = false;
+                    unsigned int index;
+
+                    while(camera.IsGrabbing() && terminate == false)
                     {
                         // All triggered images are still waiting in the output queue
                         // and will now be retrieved.
                         // Don't wait for timeout. We want good FPS. If it works, it works. 
                         // This smart pointer will receive the grab result data.
                         Pylon::CGrabResultPtr ptrGrabResult;
-                        while(camera.RetrieveResult(0, ptrGrabResult, Pylon::TimeoutHandling_Return))
+
+                        if(!waitObjectsContainer.WaitForAny(Pylon::INFINITE, &index)) 
                         {
-                            if(ptrGrabResult->GrabSucceeded())
-                            {
-                                uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
-                                cv::Size imageSize(frameWidth, frameHeight);
-                                cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
-                                
-                                link_dev::ImageT currentImage =
-                                link_dev::Interfaces::ImageFromOpenCV(frame,
-                                                                      link_dev::Format::Format_GRAY_U8);   
-                                outputPin.push(currentImage, "BaslerCamImage");
-                                ptrGrabResult.Release();
-                            }
-                            else
-                            {
-                                std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
-                            }
+                            std::cout << "This should not happen. Check wait Objects." << std::endl;
+                            break;
                         }
+
+                        switch(index)
+                        {
+                            case 0:  // Received a termination request
+                            {
+                                terminate = true;
+                                break;
+                            }
+                            case 1:  // A grabbed buffer is available
+                            {
+                                if(camera.RetrieveResult( 0, ptrGrabResult, Pylon::TimeoutHandling_Return)) 
+                                {
+                                    if(ptrGrabResult->GrabSucceeded())
+                                    {
+                                        uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
+                                        cv::Size imageSize(frameWidth, frameHeight);
+                                        cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
+                                        
+                                        link_dev::ImageT currentImage =
+                                        link_dev::Interfaces::ImageFromOpenCV(frame,
+                                                                            link_dev::Format::Format_GRAY_U8);   
+                                        outputPin.push(currentImage, "BaslerCamImage");
+                                        ptrGrabResult.Release();
+                                    }
+                                    else
+                                    {
+                                        std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
+                                    }
+                                }
+                                break;
+                            }
+                            default: 
+                            {
+                                break;
+                            }
+                        } 
                     }
 
                     camera.StopGrabbing();
@@ -291,9 +320,15 @@ int BaslerCamDriver::run()
                                                              m_autoExposure,
                                                              m_autoGain,
                                                              m_autoGainOnce,
-                                                             m_outputPin);
+                                                             m_outputPin,
+                                                             m_waitObjectsContainer);
 
     while(m_signalHandler.receiveSignal() != LINK2_SIGNAL_INTERRUPT); 
+
+    //Allow the cameraGrabber thread to finish.
+    m_terminateWaitObj.Signal();
+
+    cameraGrabber.join();
 
     std::cout << "Ending the run() function." << std::endl;
     Pylon::PylonTerminate();

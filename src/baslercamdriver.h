@@ -33,12 +33,12 @@
 
 class BaslerCamDriver : public Pylon::CConfigurationEventHandler
 {
-
     DRAIVE::Link2::SignalHandler m_signalHandler;
     DRAIVE::Link2::NodeResources m_nodeResources;
     DRAIVE::Link2::NodeDiscovery m_nodeDiscovery;
     DRAIVE::Link2::OutputPin m_outputPin;
-
+    Pylon::WaitObjectEx m_terminateWaitObj;
+ 
 public:
     std::string m_cameraID = "";
     uint64_t m_frameWidth = DEFAULT_FRAME_WIDTH;
@@ -48,6 +48,7 @@ public:
     bool m_autoGainOnce = true;
     bool m_autoExposure = true;
     bool m_autoGain = false;
+    Pylon::WaitObjects m_waitObjectsContainer;
 
     BaslerCamDriver(DRAIVE::Link2::SignalHandler signalHandler,
                     DRAIVE::Link2::NodeResources nodeResources,
@@ -72,8 +73,10 @@ public:
                     m_luminanceControl(luminanceControl),
                     m_autoGainOnce(autoGainOnce),
                     m_autoExposure(autoExposure),
-                    m_autoGain(autoGain)
+                    m_autoGain(autoGain),
+                    m_terminateWaitObj(Pylon::WaitObjectEx::Create())
     {
+        m_waitObjectsContainer.Add(m_terminateWaitObj);
     }
 
     int run();
