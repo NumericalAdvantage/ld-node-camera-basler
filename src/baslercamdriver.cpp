@@ -9,7 +9,6 @@
 #include <thread>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <link_dev/Interfaces/OpenCvToImage.h>
-#include <pylon/gige/BaslerGigEInstantCamera.h>
 #include "baslercamdriver.h"
 #include "GenericMatrix3D_generated.h"
 #include "Image_generated.h"
@@ -30,14 +29,13 @@ void AutoGainOnce(Pylon::CBaslerGigEInstantCamera& camera)
     // Set the gain ranges for luminance control.
     camera.AutoGainRawLowerLimit.SetValue(camera.GainRaw.GetMin());
     camera.AutoGainRawUpperLimit.SetValue(camera.GainRaw.GetMax());
-    
+
     // When the "once" mode of operation is selected,
     // the parameter values are automatically adjusted until the related image property
     // reaches the target value. After the automatic parameter value adjustment is complete, the auto
     // function will automatically be set to "off" and the new parameter value will be applied to the
     // subsequently grabbed images.
     camera.GainAuto.SetValue(GainAuto_Once);
-
     std::cout << "Final Gain = " << camera.GainRaw.GetValue() << std::endl << std::endl;
 }
 
@@ -72,7 +70,7 @@ void AutoExposureContinuous(Pylon::CBaslerGigEInstantCamera& camera)
     return;
 }
 
-void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
+void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
 {
     try
     {
@@ -88,7 +86,10 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         Pylon::CBooleanParameter frameRateEnable(nodemap, "AcquisitionFrameRateEnable");
         Pylon::CFloatParameter resultingFrameRate(nodemap, "ResultingFrameRateAbs");
         Pylon::CFloatParameter autoExposureUpperLimit(nodemap, "AutoExposureTimeAbsUpperLimit");
+        Pylon::CIntegerParameter gainVal(nodemap, "GainRaw");
+        Pylon::CFloatParameter gain(nodemap, "Gain");
 
+        
         // Maximize the Image AOI.
         offsetX.TrySetToMinimum(); // Set to minimum if writable.
         offsetY.TrySetToMinimum(); // Set to minimum if writable.
@@ -96,7 +97,9 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         width.SetValue(m_frameWidth);
 
         frameRateEnable.SetValue(true);
-        
+        //gainVal.SetValue(100);
+        //gain.SetValuePercentOfRange(50.0);
+
         std::cout << "Frame rate before: " << frameRate.GetValue() << std::endl;
         frameRate.SetValue(m_frameRate);
         std::cout << "Frame rate after: " << frameRate.GetValue() << std::endl;
@@ -104,6 +107,15 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
     
         // Set the pixel data format.
         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
+
+        // Select the Gain parameter
+        Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("Gain");
+        // Remove the limits of the selected parameter
+        Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);  
+
+        Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("AutoTargetvalue");
+        // Remove the limits of the selected parameter
+        Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);     
     }
     catch (const Pylon::GenericException& e)
     {
@@ -164,7 +176,6 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    bool autoGain, bool autoGainOnce,
                                    DRAIVE::Link2::OutputPin outputPin)
 {
-    Pylon::CInstantCamera cam;
     Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::PylonAutoInitTerm autoInitTerm;
     Pylon::CTlFactory& TlFactory = Pylon::CTlFactory::GetInstance();
@@ -199,7 +210,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     
                     camera.Open();
                     camera.MaxNumBuffer = NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE;
-
+                    
                     if(autoExposure || autoGain || autoGainOnce)
                     {
                         setUpCameraForAutoFunctions(camera, frameWidth, frameHeight, luminanceControl);
@@ -229,7 +240,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         // Don't wait for timeout. We want good FPS. If it works, it works. 
                         // This smart pointer will receive the grab result data.
                         Pylon::CGrabResultPtr ptrGrabResult;
-                        while(camera.RetrieveResult(0, ptrGrabResult, Pylon::TimeoutHandling_Return)) 
+                        while(camera.RetrieveResult(0, ptrGrabResult, Pylon::TimeoutHandling_Return))
                         {
                             if(ptrGrabResult->GrabSucceeded())
                             {

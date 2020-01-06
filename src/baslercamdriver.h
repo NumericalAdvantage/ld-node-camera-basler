@@ -16,7 +16,7 @@
 #include <pylon/DeviceInfo.h>
 #include <pylon/TlFactory.h>
 #include <pylon/DeviceFactory.h> 
-//#include <pylon/InstantCamera.h>
+#include <pylon/gige/BaslerGigEInstantCamera.h>
 #include <pylon/ConfigurationEventHandler.h>
 
 #include <DRAIVE/Link2/NodeDiscovery.hpp>
@@ -86,7 +86,7 @@ class BaslerCamConfigEvents : public Pylon::CConfigurationEventHandler
 public:
     uint64_t m_frameWidth, m_frameHeight, m_frameRate, m_percentageGain;
     bool m_autoGain = false;
-    void OnOpened(Pylon::CInstantCamera& camera);
+    void OnOpened(Pylon::CBaslerGigEInstantCamera& camera);
     BaslerCamConfigEvents(uint64_t frameWidth, 
                           uint64_t frameHeight,
                           uint64_t frameRate,
