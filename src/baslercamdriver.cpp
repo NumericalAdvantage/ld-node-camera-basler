@@ -86,9 +86,6 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         Pylon::CBooleanParameter frameRateEnable(nodemap, "AcquisitionFrameRateEnable");
         Pylon::CFloatParameter resultingFrameRate(nodemap, "ResultingFrameRateAbs");
         Pylon::CFloatParameter autoExposureUpperLimit(nodemap, "AutoExposureTimeAbsUpperLimit");
-        Pylon::CIntegerParameter gainVal(nodemap, "GainRaw");
-        Pylon::CFloatParameter gain(nodemap, "Gain");
-
         
         // Maximize the Image AOI.
         offsetX.TrySetToMinimum(); // Set to minimum if writable.
@@ -97,8 +94,6 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         width.SetValue(m_frameWidth);
 
         frameRateEnable.SetValue(true);
-        //gainVal.SetValue(100);
-        //gain.SetValuePercentOfRange(50.0);
 
         std::cout << "Frame rate before: " << frameRate.GetValue() << std::endl;
         frameRate.SetValue(m_frameRate);
@@ -247,7 +242,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         // This smart pointer will receive the grab result data.
                         Pylon::CGrabResultPtr ptrGrabResult;
 
-                        if(!waitObjectsContainer.WaitForAny(Pylon::INFINITE, &index)) 
+                        if(!waitObjectsContainer.WaitForAny(0xFFFFFFFF, &index))
                         {
                             std::cout << "This should not happen. Check wait Objects." << std::endl;
                             break;
