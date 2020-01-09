@@ -45,6 +45,12 @@ void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64
     // i.e., 0 -> black, 255 -> white.
     camera.AutoTargetValue.SetValue(luminanceControl);
 
+    //Remove factory set parameter limits.
+    camera.ParameterSelector.SetValue(ParameterSelector_Gain);
+    camera.RemoveLimits.SetValue(true);
+    camera.ParameterSelector.SetValue(ParameterSelector_AutoTargetValue);
+    camera.RemoveLimits.SetValue(true);
+    
     return;
 }
 
@@ -134,17 +140,6 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
 
         Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(BASLER_RECOMMENDED_PACKET_SIZE);
-
-        /*
-        // Select the Gain parameter
-        Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("Gain");
-        // Remove the limits of the selected parameter
-        Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);  
-        // Select the AutoTargetValue parameter
-        Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("AutoTargetvalue");
-        // Remove the limits of the selected parameter
-        Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);  
-        */
     }
     catch (const Pylon::GenericException& e)
     {
