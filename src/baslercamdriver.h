@@ -30,6 +30,7 @@
 #define DEFAULT_FRAME_RATE 24
 #define DEFAULT_LUMINANCE_CONTROL 100
 #define NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE 50
+#define BASLER_RECOMMENDED_PACKET_SIZE 9000 //[4]
 
 class BaslerCamDriver : public Pylon::CConfigurationEventHandler
 {
@@ -89,7 +90,7 @@ class BaslerCamConfigEvents : public Pylon::CConfigurationEventHandler
 public:
     uint64_t m_frameWidth, m_frameHeight, m_frameRate;
     bool m_autoGain = false;
-    void OnOpened(Pylon::CBaslerGigEInstantCamera& camera);
+    void OnOpened(Pylon::CInstantCamera& camera);
     BaslerCamConfigEvents(uint64_t frameWidth, 
                           uint64_t frameHeight,
                           uint64_t frameRate,

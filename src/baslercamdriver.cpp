@@ -103,7 +103,7 @@ void AutoExposureContinuous(Pylon::CBaslerGigEInstantCamera& camera)
     return;
 }
 
-void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
+void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
 {
     try
     {
@@ -133,6 +133,9 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         // Set the pixel data format.
         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
 
+        Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(BASLER_RECOMMENDED_PACKET_SIZE);
+
+        /*
         // Select the Gain parameter
         Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("Gain");
         // Remove the limits of the selected parameter
@@ -141,6 +144,7 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("AutoTargetvalue");
         // Remove the limits of the selected parameter
         Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);  
+        */
     }
     catch (const Pylon::GenericException& e)
     {
@@ -273,7 +277,6 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                     {
                                         std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
                                     }
-                                    //ptrGrabResult.Release();
                                 }
                                 break;
                             }
@@ -284,6 +287,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         } 
                     }
 
+                    ptrGrabResult.Release();
                     camera.StopGrabbing();
                 }
                 catch(const Pylon::GenericException &e)
