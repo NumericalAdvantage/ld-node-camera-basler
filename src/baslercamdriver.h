@@ -87,7 +87,7 @@ public:
 class BaslerCamConfigEvents : public Pylon::CConfigurationEventHandler
 {
 public:
-    uint64_t m_frameWidth, m_frameHeight, m_frameRate, m_percentageGain;
+    uint64_t m_frameWidth, m_frameHeight, m_frameRate;
     bool m_autoGain = false;
     void OnOpened(Pylon::CBaslerGigEInstantCamera& camera);
     BaslerCamConfigEvents(uint64_t frameWidth, 

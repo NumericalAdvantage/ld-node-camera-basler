@@ -34,7 +34,7 @@ int main(int argc, char** argv)
                                         rootNode.getBoolean("AutoExposureContinuous"),
                                         rootNode.getBoolean("AutoGainContinuous")};
 
-        baslercamdriver.run();     //Runs until interrupt signal is sent to the program.
+        baslercamdriver.run(); //Runs until interrupt signal is sent to the program.
         return 0;
         
     } catch (const std::exception& e) {

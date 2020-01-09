@@ -13,9 +13,40 @@
 #include "GenericMatrix3D_generated.h"
 #include "Image_generated.h"
 
-typedef Pylon::CBaslerGigEInstantCamera Camera_t;
 using namespace Basler_GigECameraParams;
-typedef Camera_t::GrabResultPtr_t GrabResultPtr_t;
+
+void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64_t frameWidth,
+                                 int64_t frameHeight, uint64_t luminanceControl)
+{
+    if (IsWritable(camera.OffsetX))
+    {
+        camera.OffsetX.SetValue(camera.OffsetX.GetMin());
+    }
+    if (IsWritable(camera.OffsetY))
+    {
+        camera.OffsetY.SetValue(camera.OffsetY.GetMin());
+    }
+
+    camera.Width.SetValue(camera.Width.GetMax());
+    camera.Height.SetValue(camera.Height.GetMax());
+
+    // Set the Auto Function AOI for luminance statistics.
+    // Currently, AutoFunctionAOISelector_AOI1 is predefined to gather
+    // luminance statistics.
+                    
+    camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
+    camera.AutoFunctionAOIOffsetX.SetValue(camera.OffsetX.GetMin());
+    camera.AutoFunctionAOIOffsetY.SetValue(camera.OffsetY.GetMin());
+    camera.AutoFunctionAOIWidth.SetValue(camera.Width.GetMax());
+    camera.AutoFunctionAOIHeight.SetValue(camera.Height.GetMax());
+    
+    // Set the target value for luminance control. The value is always expressed
+    // as an 8 bit value regardless of the current pixel data output format,
+    // i.e., 0 -> black, 255 -> white.
+    camera.AutoTargetValue.SetValue(luminanceControl);
+
+    return;
+}
 
 void AutoGainOnce(Pylon::CBaslerGigEInstantCamera& camera)
 {
@@ -37,6 +68,7 @@ void AutoGainOnce(Pylon::CBaslerGigEInstantCamera& camera)
     // subsequently grabbed images.
     camera.GainAuto.SetValue(GainAuto_Once);
     std::cout << "Final Gain = " << camera.GainRaw.GetValue() << std::endl << std::endl;
+    return;
 }
 
 void AutoGainContinuous(Pylon::CBaslerGigEInstantCamera& camera)
@@ -55,6 +87,7 @@ void AutoGainContinuous(Pylon::CBaslerGigEInstantCamera& camera)
     // until the auto function is set to "off", in which case the parameter value resulting from the latest
     // automatic adjustment will operate unless the value is manually adjusted.
     camera.GainAuto.SetValue(GainAuto_Continuous);
+    return;
 }
 
 void AutoExposureContinuous(Pylon::CBaslerGigEInstantCamera& camera)
@@ -83,17 +116,14 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         Pylon::CIntegerParameter offsetX(nodemap, "OffsetX");
         Pylon::CIntegerParameter offsetY(nodemap, "OffsetY");
         Pylon::CFloatParameter frameRate(nodemap, "AcquisitionFrameRateAbs");
-        Pylon::CBooleanParameter frameRateEnable(nodemap, "AcquisitionFrameRateEnable");
         Pylon::CFloatParameter resultingFrameRate(nodemap, "ResultingFrameRateAbs");
-        Pylon::CFloatParameter autoExposureUpperLimit(nodemap, "AutoExposureTimeAbsUpperLimit");
         
         // Maximize the Image AOI.
         offsetX.TrySetToMinimum(); // Set to minimum if writable.
         offsetY.TrySetToMinimum(); // Set to minimum if writable.
+        
         height.SetValue(m_frameHeight);
         width.SetValue(m_frameWidth);
-
-        frameRateEnable.SetValue(true);
 
         std::cout << "Frame rate before: " << frameRate.GetValue() << std::endl;
         frameRate.SetValue(m_frameRate);
@@ -110,7 +140,7 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CBaslerGigEInstantCamera& camera)
         // Select the AutoTargetValue parameter
         Pylon::CEnumParameter(nodemap, "RemoveParameterLimitSelector").SetValue("AutoTargetvalue");
         // Remove the limits of the selected parameter
-        Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);     
+        Pylon::CBooleanParameter(nodemap, "RemoveParameterLimit").SetValue(true);  
     }
     catch (const Pylon::GenericException& e)
     {
@@ -131,36 +161,6 @@ void printCameraDetails(Pylon::CBaslerGigEInstantCamera& camera)
     return;
 }
 
-void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64_t frameWidth,
-                                 int64_t frameHeight, uint64_t luminanceControl)
-{
-    if (IsWritable(camera.OffsetX))
-    {
-        camera.OffsetX.SetValue(camera.OffsetX.GetMin());
-    }
-    if (IsWritable(camera.OffsetY))
-    {
-        camera.OffsetY.SetValue(camera.OffsetY.GetMin());
-    }
-
-    // Set the Auto Function AOI for luminance statistics.
-    // Currently, AutoFunctionAOISelector_AOI1 is predefined to gather
-    // luminance statistics.
-                    
-    camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
-    camera.AutoFunctionAOIOffsetX.SetValue(camera.OffsetX.GetMin());
-    camera.AutoFunctionAOIOffsetY.SetValue(camera.OffsetY.GetMin());
-    camera.AutoFunctionAOIWidth.SetValue(frameWidth);
-    camera.AutoFunctionAOIHeight.SetValue(frameHeight);
-    
-    // Set the target value for luminance control. The value is always expressed
-    // as an 8 bit value regardless of the current pixel data output format,
-    // i.e., 0 -> black, 255 -> white.
-    camera.AutoTargetValue.SetValue(luminanceControl);
-
-    return;
-}
-
 /*
     Iterates over list of connected cameras and opens the camera for acquisition if camera 
     with same camera ID is found. 
@@ -177,6 +177,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
     Pylon::CTlFactory& TlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::DeviceInfoList_t lstDevices;
     TlFactory.EnumerateDevices(lstDevices);
+    Pylon::CGrabResultPtr ptrGrabResult;
     
     std::cout << "Number of devices found: " << lstDevices.size() << std::endl;
 
@@ -199,7 +200,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                                                            frameHeight,
                                                                            frameRate,
                                                                            autoGain), 
-                                                     Pylon::RegistrationMode_ReplaceAll,
+                                                     Pylon::RegistrationMode_Append,
                                                      Pylon::Cleanup_Delete);
 
                     printCameraDetails(camera);
@@ -228,7 +229,6 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         }
                     }
 
-                    //Opens the capture in continuous acquisition mode.
                     camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); 
 
                     bool terminate = false;
@@ -236,12 +236,6 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 
                     while(camera.IsGrabbing() && terminate == false)
                     {
-                        // All triggered images are still waiting in the output queue
-                        // and will now be retrieved.
-                        // Don't wait for timeout. We want good FPS. If it works, it works. 
-                        // This smart pointer will receive the grab result data.
-                        Pylon::CGrabResultPtr ptrGrabResult;
-
                         if(!waitObjectsContainer.WaitForAny(0xFFFFFFFF, &index))
                         {
                             std::cout << "This should not happen. Check wait Objects." << std::endl;
@@ -257,7 +251,12 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                             }
                             case 1:  // A grabbed buffer is available
                             {
-                                if(camera.RetrieveResult( 0, ptrGrabResult, Pylon::TimeoutHandling_Return)) 
+                                // All triggered images are still waiting in the output queue
+                                // and will now be retrieved.
+                                // Don't wait for timeout. We want good FPS. If it works, it works. 
+                                // This smart pointer will receive the grab result data.
+                                //camera.GetGrabResultWaitObject().Wait(0);
+                                if(camera.RetrieveResult(0, ptrGrabResult, Pylon::TimeoutHandling_Return)) 
                                 {
                                     if(ptrGrabResult->GrabSucceeded())
                                     {
@@ -269,12 +268,12 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                         link_dev::Interfaces::ImageFromOpenCV(frame,
                                                                             link_dev::Format::Format_GRAY_U8);   
                                         outputPin.push(currentImage, "BaslerCamImage");
-                                        ptrGrabResult.Release();
                                     }
                                     else
                                     {
                                         std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
                                     }
+                                    //ptrGrabResult.Release();
                                 }
                                 break;
                             }
@@ -327,4 +326,6 @@ int BaslerCamDriver::run()
 
     std::cout << "Ending the run() function." << std::endl;
     Pylon::PylonTerminate();
+
+    return 0;
 }
