@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
+#include <map>
 #include <thread>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <link_dev/Interfaces/OpenCvToImage.h>
@@ -160,6 +161,18 @@ void printCameraDetails(Pylon::CBaslerGigEInstantCamera& camera)
     return;
 }
 
+void printErrors(std::map<uint32_t, uint64_t>& errors)
+{
+    std::map<uint32_t, uint64_t>::iterator errorsIt = errors.begin();
+    std::cout << std::endl << std::setw(10) << "Error   " << std::setw(10) << "Count" << std::endl;
+    while(errorsIt != errors.end())
+    {
+        std::cout << std::setw(10) << errorsIt->first << std::setw(10) << errorsIt->second << std::endl;
+        errorsIt++;
+    }
+    return;
+}
+
 /*
     Iterates over list of connected cameras and opens the camera for acquisition if camera 
     with same camera ID is found. 
@@ -177,6 +190,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
     Pylon::DeviceInfoList_t lstDevices;
     TlFactory.EnumerateDevices(lstDevices);
     Pylon::CGrabResultPtr ptrGrabResult;
+    std::map<uint32_t, uint64_t> errors;
     
     std::cout << "Number of devices found: " << lstDevices.size() << std::endl;
 
@@ -199,7 +213,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                                                            frameHeight,
                                                                            frameRate,
                                                                            autoGain), 
-                                                     Pylon::RegistrationMode_Append,
+                                                     Pylon::RegistrationMode_ReplaceAll,
                                                      Pylon::Cleanup_Delete);
 
                     printCameraDetails(camera);
@@ -270,7 +284,15 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                     }
                                     else
                                     {
-                                        std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
+                                        //std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
+                                        if(errors.count(ptrGrabResult->GetErrorCode()) > 0)
+                                        {   
+                                            errors[ptrGrabResult->GetErrorCode()]++;
+                                        }    
+                                        else
+                                        {
+                                            errors.insert(std::make_pair(ptrGrabResult->GetErrorCode(), 1));
+                                        }
                                     }
                                 }
                                 break;
@@ -284,6 +306,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 
                     ptrGrabResult.Release();
                     camera.StopGrabbing();
+                    printErrors(errors);
                 }
                 catch(const Pylon::GenericException &e)
                 {
@@ -323,7 +346,7 @@ int BaslerCamDriver::run()
 
     cameraGrabber.join();
 
-    std::cout << "Ending the run() function." << std::endl;
+    std::cout << "Kill Signal received. Terminating... " << std::endl;
     Pylon::PylonTerminate();
 
     return 0;
