@@ -33,7 +33,8 @@ int main(int argc, char** argv)
                                         rootNode.getBoolean("AutoGainOnce"),
                                         rootNode.getBoolean("AutoExposureContinuous"),
                                         rootNode.getBoolean("AutoGainContinuous"),
-                                        rootNode.getString("AutoFunctionProfile")};
+                                        rootNode.getString("AutoFunctionProfile"),
+                                        rootNode.getInt("NetworkInterfaceMTU")};
 
         baslercamdriver.run(); //Runs until interrupt signal is sent to the program.
         return 0;

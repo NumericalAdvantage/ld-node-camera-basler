@@ -138,9 +138,7 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         std::cout << "Frame rate resultant: " << resultingFrameRate.GetValue() << std::endl;
     
         // Set the pixel data format.
-        Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
-
-        Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(BASLER_RECOMMENDED_PACKET_SIZE);
+        Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");    
     }
     catch (const Pylon::GenericException& e)
     {
@@ -183,7 +181,8 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    bool autoGain, bool autoGainOnce,
                                    std::string autoFuntionProfile,
                                    DRAIVE::Link2::OutputPin outputPin,
-                                   Pylon::WaitObjects waitObjectsContainer)
+                                   Pylon::WaitObjects waitObjectsContainer,
+                                   int64_t networkInterface)
 {
     Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::PylonAutoInitTerm autoInitTerm;
@@ -223,6 +222,16 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 
                     camera.Open();
                     camera.MaxNumBuffer = NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE;
+
+                    GenApi::INodeMap& nodemap = camera.GetNodeMap();
+                    if(networkInterface >= BASLER_RECOMMENDED_PACKET_SIZE)
+                    {
+                        Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(BASLER_RECOMMENDED_PACKET_SIZE);
+                    }
+                    else
+                    {
+                        Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(networkInterface);
+                    }
                     
                     if(autoExposure || autoGain || autoGainOnce)
                     {
@@ -351,7 +360,8 @@ int BaslerCamDriver::run()
                                                              m_autoGainOnce,
                                                              m_autoFunctionProfile,
                                                              m_outputPin,
-                                                             m_waitObjectsContainer);
+                                                             m_waitObjectsContainer,
+                                                             m_NetworkInterfaceMTU);
 
     while(m_signalHandler.receiveSignal() != LINK2_SIGNAL_INTERRUPT); 
 

@@ -32,9 +32,10 @@
             "AutoGainOnce" : { "type" : "boolean", "default" : true},
             "AutoExposureContinuous" : { "type" : "boolean", "default" : true},
             "AutoGainContinuous" : { "type" : "boolean", "default" : false},
-            "AutoFunctionProfile": {"type" : "string", "default" : "Off"}
+            "AutoFunctionProfile": {"type" : "string", "default" : "Off"},
+            "NetworkInterfaceMTU" : {"type" : "integer"}
         },
-        "required": ["CameraID"],
+        "required": ["CameraID", "NetworkInterfaceMTU"],
         "additionalProperties" : false
     }
 }

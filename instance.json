@@ -22,6 +22,7 @@
         "AutoGainOnce" : false,
         "AutoExposureContinuous" : true,
         "AutoGainContinuous" : true,
-        "AutoFunctionProfile": "MinimizeExposure"
+        "AutoFunctionProfile" : "MinimizeExposure",
+        "NetworkInterfaceMTU" : 9000
     }
 }
