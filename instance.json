@@ -6,7 +6,6 @@
     {
         "basler-cam-output-pin" : 
         {
-            "dataobject-queue-capacity" : "1000dos",
             "offers" :  
             {
                 "BaslerCamImage" : ["l2offer:/BaslerCamImage"]
@@ -18,10 +17,11 @@
         "CameraID" : "23129899",
         "ImageWidth" : 1280,
         "ImageHeight" : 1024,
-        "FrameRate" : 60,
-        "LuminanceControl" : 90,
-        "AutoGainOnce" : true,
+        "FrameRate" : 30,
+        "LuminanceControl" : 100,
+        "AutoGainOnce" : false,
         "AutoExposureContinuous" : true,
-        "AutoGainContinuous" : true
+        "AutoGainContinuous" : true,
+        "AutoFunctionProfile": "MinimizeExposure"
     }
 }

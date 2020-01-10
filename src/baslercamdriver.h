@@ -50,6 +50,7 @@ public:
     bool m_autoExposure = true;
     bool m_autoGain = false;
     Pylon::WaitObjects m_waitObjectsContainer;
+    std::string m_autoFunctionProfile = "";
 
     BaslerCamDriver(DRAIVE::Link2::SignalHandler signalHandler,
                     DRAIVE::Link2::NodeResources nodeResources,
@@ -62,7 +63,8 @@ public:
                     uint64_t luminanceControl,
                     bool autoGainOnce,
                     bool autoExposure,
-                    bool autoGain) :
+                    bool autoGain,
+                    std::string autoFunctionProfile) :
                     m_signalHandler(signalHandler),
                     m_nodeResources(nodeResources),
                     m_nodeDiscovery(nodeDiscovery),
@@ -75,6 +77,7 @@ public:
                     m_autoGainOnce(autoGainOnce),
                     m_autoExposure(autoExposure),
                     m_autoGain(autoGain),
+                    m_autoFunctionProfile(autoFunctionProfile),
                     m_terminateWaitObj(Pylon::WaitObjectEx::Create())
     {
         m_waitObjectsContainer.Add(m_terminateWaitObj);

@@ -31,7 +31,8 @@
             "LuminanceControl" : { "type" : "integer", "default" : 100},
             "AutoGainOnce" : { "type" : "boolean", "default" : true},
             "AutoExposureContinuous" : { "type" : "boolean", "default" : true},
-            "AutoGainContinuous" : { "type" : "boolean", "default" : false}
+            "AutoGainContinuous" : { "type" : "boolean", "default" : false},
+            "AutoFunctionProfile": {"type" : "string", "default" : "Off"}
         },
         "required": ["CameraID"],
         "additionalProperties" : false

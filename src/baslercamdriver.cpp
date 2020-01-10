@@ -19,11 +19,11 @@ using namespace Basler_GigECameraParams;
 void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64_t frameWidth,
                                  int64_t frameHeight, uint64_t luminanceControl)
 {
-    if (IsWritable(camera.OffsetX))
+    if(IsWritable(camera.OffsetX))
     {
         camera.OffsetX.SetValue(camera.OffsetX.GetMin());
     }
-    if (IsWritable(camera.OffsetY))
+    if(IsWritable(camera.OffsetY))
     {
         camera.OffsetY.SetValue(camera.OffsetY.GetMin());
     }
@@ -181,6 +181,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    uint64_t frameHeight, uint64_t frameRate, 
                                    uint64_t luminanceControl, bool autoExposure,
                                    bool autoGain, bool autoGainOnce,
+                                   std::string autoFuntionProfile,
                                    DRAIVE::Link2::OutputPin outputPin,
                                    Pylon::WaitObjects waitObjectsContainer)
 {
@@ -229,15 +230,27 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 
                         if(autoGain)
                         {
+                            if(autoFuntionProfile.compare("MinimizeGain") == 0)
+                            {
+                                camera.AutoFunctionProfile.SetValue(AutoFunctionProfile_GainMinimum);
+                            }    
                             AutoGainContinuous(camera);        
                         }
                         else if(autoGainOnce)
                         {
+                            if(autoFuntionProfile.compare("MinimizeGain") == 0)
+                            {
+                                camera.AutoFunctionProfile.SetValue(AutoFunctionProfile_GainMinimum);
+                            }
                             AutoGainOnce(camera);
                         }
 
                         if(autoExposure)
                         {
+                            if(autoFuntionProfile.compare("MinimizeExposure") == 0)
+                            {
+                                camera.AutoFunctionProfile.SetValue(AutoFunctionProfile_ExposureMinimum);
+                            } 
                             AutoExposureContinuous(camera);
                         }
                     }
@@ -276,7 +289,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                         uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
                                         cv::Size imageSize(frameWidth, frameHeight);
                                         cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
-                                        
+
                                         link_dev::ImageT currentImage =
                                         link_dev::Interfaces::ImageFromOpenCV(frame,
                                                                             link_dev::Format::Format_GRAY_U8);   
@@ -336,6 +349,7 @@ int BaslerCamDriver::run()
                                                              m_autoExposure,
                                                              m_autoGain,
                                                              m_autoGainOnce,
+                                                             m_autoFunctionProfile,
                                                              m_outputPin,
                                                              m_waitObjectsContainer);
 

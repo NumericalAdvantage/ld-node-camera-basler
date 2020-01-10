@@ -32,7 +32,8 @@ int main(int argc, char** argv)
                                         rootNode.getUInt("LuminanceControl"),
                                         rootNode.getBoolean("AutoGainOnce"),
                                         rootNode.getBoolean("AutoExposureContinuous"),
-                                        rootNode.getBoolean("AutoGainContinuous")};
+                                        rootNode.getBoolean("AutoGainContinuous"),
+                                        rootNode.getString("AutoFunctionProfile")};
 
         baslercamdriver.run(); //Runs until interrupt signal is sent to the program.
         return 0;
