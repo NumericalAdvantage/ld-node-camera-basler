@@ -137,8 +137,9 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         std::cout << "Frame rate after: " << frameRate.GetValue() << std::endl;
         std::cout << "Frame rate resultant: " << resultingFrameRate.GetValue() << std::endl;
     
-        // Set the pixel data format.
-        Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");    
+        // Set the pixel data format. PixelFormat_RGB8Packed  BayerGR8 YUV422_YUYV_Packed
+        //Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");    
+        //Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerGR8");
     }
     catch (const Pylon::GenericException& e)
     {
@@ -232,6 +233,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     {
                         Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(networkInterface);
                     }
+                    Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
                     
                     if(autoExposure || autoGain || autoGainOnce)
                     {
@@ -298,10 +300,12 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                         uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
                                         cv::Size imageSize(frameWidth, frameHeight);
                                         cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
-
+                                        cv::Mat converted;
+                                        cvtColor(frame, converted, cv::COLOR_BayerBG2RGB);    
+                                        //cvtColor(frame, converted, cv::COLOR_YUV2RGB_Y422);
                                         link_dev::ImageT currentImage =
-                                        link_dev::Interfaces::ImageFromOpenCV(frame,
-                                                                            link_dev::Format::Format_GRAY_U8);   
+                                        link_dev::Interfaces::ImageFromOpenCV(converted,
+                                                                            link_dev::Format::Format_RGB_U8);   
                                         outputPin.push(currentImage, "BaslerCamImage");
                                     }
                                     else
