@@ -28,8 +28,8 @@ void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64
         camera.OffsetY.SetValue(camera.OffsetY.GetMin());
     }
 
-    camera.Width.SetValue(camera.Width.GetMax());
-    camera.Height.SetValue(camera.Height.GetMax());
+    camera.Width.SetValue(frameWidth);
+    camera.Height.SetValue(frameHeight);
 
     // Set the Auto Function AOI for luminance statistics.
     // Currently, AutoFunctionAOISelector_AOI1 is predefined to gather
