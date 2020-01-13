@@ -31,6 +31,7 @@
 #define DEFAULT_LUMINANCE_CONTROL 100
 #define NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE 50
 #define BASLER_RECOMMENDED_PACKET_SIZE 9000 //[4]
+#define DEFAULT_PACKET_SIZE 1500
 
 class BaslerCamDriver : public Pylon::CConfigurationEventHandler
 {
@@ -50,7 +51,7 @@ public:
     bool m_autoExposure = true;
     bool m_autoGain = false;
     Pylon::WaitObjects m_waitObjectsContainer;
-    std::string m_autoFunctionProfile = "";
+    std::string m_autoFunctionProfile = "", m_outputFormat = "";
     int64_t m_NetworkInterfaceMTU;
 
     BaslerCamDriver(DRAIVE::Link2::SignalHandler signalHandler,
@@ -66,7 +67,8 @@ public:
                     bool autoExposure,
                     bool autoGain,
                     std::string autoFunctionProfile,
-                    int64_t networkInterfaceMTU) :
+                    int64_t networkInterfaceMTU,
+                    std::string outputFormat) :
                     m_signalHandler(signalHandler),
                     m_nodeResources(nodeResources),
                     m_nodeDiscovery(nodeDiscovery),
@@ -81,6 +83,7 @@ public:
                     m_autoGain(autoGain),
                     m_autoFunctionProfile(autoFunctionProfile),
                     m_NetworkInterfaceMTU(networkInterfaceMTU),
+                    m_outputFormat(outputFormat),
                     m_terminateWaitObj(Pylon::WaitObjectEx::Create())
     {
         m_waitObjectsContainer.Add(m_terminateWaitObj);

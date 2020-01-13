@@ -136,10 +136,6 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         frameRate.SetValue(m_frameRate);
         std::cout << "Frame rate after: " << frameRate.GetValue() << std::endl;
         std::cout << "Frame rate resultant: " << resultingFrameRate.GetValue() << std::endl;
-    
-        // Set the pixel data format. PixelFormat_RGB8Packed  BayerGR8 YUV422_YUYV_Packed
-        //Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");    
-        //Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerGR8");
     }
     catch (const Pylon::GenericException& e)
     {
@@ -183,7 +179,8 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    std::string autoFuntionProfile,
                                    DRAIVE::Link2::OutputPin outputPin,
                                    Pylon::WaitObjects waitObjectsContainer,
-                                   int64_t networkInterface)
+                                   int64_t networkInterface,
+                                   std::string outputFormat)
 {
     Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::PylonAutoInitTerm autoInitTerm;
@@ -233,7 +230,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     {
                         Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(networkInterface);
                     }
-                    Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
+                    
                     
                     if(autoExposure || autoGain || autoGainOnce)
                     {
@@ -266,11 +263,31 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         }
                     }
 
-                    camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); 
-
                     bool terminate = false;
                     unsigned int index;
+                    
+                    link_dev::Format image_format;
+                    cv::ColorConversionCodes color_conversion_code;
 
+                    if(outputFormat.compare("RGB_U8") == 0)
+                    {
+                        Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
+                        image_format = link_dev::Format_RGB_U8;
+                        color_conversion_code = cv::COLOR_BayerBG2RGB;
+                    }
+                    else if(outputFormat.compare("BGR_U8") == 0)
+                    {
+                        Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
+                        image_format = link_dev::Format_BGR_U8;
+                        color_conversion_code = cv::COLOR_BayerBG2BGR;
+                    }
+                    else if(outputFormat.compare("GRAY_U8") == 0)
+                    {
+                        Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
+                        image_format = link_dev::Format_GRAY_U8;
+                    }
+
+                    camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); 
                     while(camera.IsGrabbing() && terminate == false)
                     {
                         if(!waitObjectsContainer.WaitForAny(0xFFFFFFFF, &index))
@@ -297,16 +314,26 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                 {
                                     if(ptrGrabResult->GrabSucceeded())
                                     {
-                                        uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
-                                        cv::Size imageSize(frameWidth, frameHeight);
-                                        cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
-                                        cv::Mat converted;
-                                        cvtColor(frame, converted, cv::COLOR_BayerBG2RGB);    
-                                        //cvtColor(frame, converted, cv::COLOR_YUV2RGB_Y422);
-                                        link_dev::ImageT currentImage =
-                                        link_dev::Interfaces::ImageFromOpenCV(converted,
-                                                                            link_dev::Format::Format_RGB_U8);   
-                                        outputPin.push(currentImage, "BaslerCamImage");
+                                        if(outputFormat.compare("GRAY_U8") == 0)
+                                        {
+                                            uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
+                                            cv::Size imageSize(frameWidth, frameHeight);
+                                            cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
+                                            link_dev::ImageT currentImage =
+                                            link_dev::Interfaces::ImageFromOpenCV(frame, link_dev::Format_GRAY_U8);   
+                                            outputPin.push(currentImage, "BaslerCamImage");
+                                        }
+                                        else
+                                        {
+                                            cv::Mat converted;
+                                            uint8_t *pImageBuffer = (uint8_t *) ptrGrabResult->GetBuffer();
+                                            cv::Size imageSize(frameWidth, frameHeight);
+                                            cv::Mat frame(imageSize, CV_8UC1, pImageBuffer);
+                                            cvtColor(frame, converted, color_conversion_code);    
+                                            link_dev::ImageT currentImage =
+                                            link_dev::Interfaces::ImageFromOpenCV(converted, image_format);   
+                                            outputPin.push(currentImage, "BaslerCamImage");
+                                        }
                                     }
                                     else
                                     {
@@ -365,7 +392,8 @@ int BaslerCamDriver::run()
                                                              m_autoFunctionProfile,
                                                              m_outputPin,
                                                              m_waitObjectsContainer,
-                                                             m_NetworkInterfaceMTU);
+                                                             m_NetworkInterfaceMTU,
+                                                             m_outputFormat);
 
     while(m_signalHandler.receiveSignal() != LINK2_SIGNAL_INTERRUPT); 
 
