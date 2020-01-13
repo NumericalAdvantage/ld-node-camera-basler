@@ -273,7 +273,11 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     if(outputFormat.compare("RGB_U8") == 0)
                     {
                         if(whiteBalanceCorrection)
+                        {
+                            camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI2);
                             Pylon::CBooleanParameter(nodemap, "AutoFunctionAOIUsageWhiteBalance").SetValue(true);
+                            camera.BalanceWhiteAuto.SetValue(BalanceWhiteAuto_Continuous);
+                        }
                         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
                         image_format = link_dev::Format_RGB_U8;
                         color_conversion_code = cv::COLOR_BayerBG2RGB;
@@ -281,7 +285,11 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     else if(outputFormat.compare("BGR_U8") == 0)
                     {
                         if(whiteBalanceCorrection)
+                        {
+                            camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI2);
                             Pylon::CBooleanParameter(nodemap, "AutoFunctionAOIUsageWhiteBalance").SetValue(true);
+                            camera.BalanceWhiteAuto.SetValue(BalanceWhiteAuto_Continuous);
+                        }
                         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
                         image_format = link_dev::Format_BGR_U8;
                         color_conversion_code = cv::COLOR_BayerBG2BGR;
