@@ -36,6 +36,7 @@ void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64
     // luminance statistics.
                     
     camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
+
     camera.AutoFunctionAOIOffsetX.SetValue(camera.OffsetX.GetMin());
     camera.AutoFunctionAOIOffsetY.SetValue(camera.OffsetY.GetMin());
     camera.AutoFunctionAOIWidth.SetValue(camera.Width.GetMax());
@@ -180,7 +181,8 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    DRAIVE::Link2::OutputPin outputPin,
                                    Pylon::WaitObjects waitObjectsContainer,
                                    int64_t networkInterface,
-                                   std::string outputFormat)
+                                   std::string outputFormat, 
+                                   bool whiteBalanceCorrection)
 {
     Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::PylonAutoInitTerm autoInitTerm;
@@ -270,12 +272,16 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 
                     if(outputFormat.compare("RGB_U8") == 0)
                     {
+                        if(whiteBalanceCorrection)
+                            Pylon::CBooleanParameter(nodemap, "AutoFunctionAOIUsageWhiteBalance").SetValue(true);
                         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
                         image_format = link_dev::Format_RGB_U8;
                         color_conversion_code = cv::COLOR_BayerBG2RGB;
                     }
                     else if(outputFormat.compare("BGR_U8") == 0)
                     {
+                        if(whiteBalanceCorrection)
+                            Pylon::CBooleanParameter(nodemap, "AutoFunctionAOIUsageWhiteBalance").SetValue(true);
                         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
                         image_format = link_dev::Format_BGR_U8;
                         color_conversion_code = cv::COLOR_BayerBG2BGR;
@@ -392,7 +398,8 @@ int BaslerCamDriver::run()
                                                              m_outputPin,
                                                              m_waitObjectsContainer,
                                                              m_NetworkInterfaceMTU,
-                                                             m_outputFormat);
+                                                             m_outputFormat,
+                                                             m_autoWhiteBalanceCorrection);
 
     while(m_signalHandler.receiveSignal() != LINK2_SIGNAL_INTERRUPT); 
 

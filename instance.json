@@ -24,6 +24,7 @@
         "AutoGainContinuous" : true,
         "AutoFunctionProfile" : "MinimizeGain",
         "NetworkInterfaceMTU" : 1500,
-        "OutputFormat" : "RGB_U8"
+        "OutputFormat" : "RGB_U8",
+        "AutoWhiteBalanceCorrection" : false
     }
 }

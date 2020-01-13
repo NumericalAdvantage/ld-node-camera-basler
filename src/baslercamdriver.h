@@ -46,9 +46,7 @@ public:
     uint64_t m_frameHeight = DEFAULT_FRAME_HEIGHT;
     uint64_t m_frameRate = DEFAULT_FRAME_RATE;
     uint64_t m_luminanceControl = DEFAULT_LUMINANCE_CONTROL;
-    bool m_autoGainOnce = true;
-    bool m_autoExposure = true;
-    bool m_autoGain = false;
+    bool m_autoGainOnce = true, m_autoExposure = true, m_autoGain = false, m_autoWhiteBalanceCorrection = false;
     Pylon::WaitObjects m_waitObjectsContainer;
     std::string m_autoFunctionProfile = "", m_outputFormat = "";
     int64_t m_NetworkInterfaceMTU;
@@ -67,7 +65,8 @@ public:
                     bool autoGain,
                     std::string autoFunctionProfile,
                     int64_t networkInterfaceMTU,
-                    std::string outputFormat) :
+                    std::string outputFormat,
+                    bool autoWhiteBalanceCorrection) :
                     m_signalHandler(signalHandler),
                     m_nodeResources(nodeResources),
                     m_nodeDiscovery(nodeDiscovery),
@@ -83,6 +82,7 @@ public:
                     m_autoFunctionProfile(autoFunctionProfile),
                     m_NetworkInterfaceMTU(networkInterfaceMTU),
                     m_outputFormat(outputFormat),
+                    m_autoWhiteBalanceCorrection(autoWhiteBalanceCorrection),
                     m_terminateWaitObj(Pylon::WaitObjectEx::Create())
     {
         m_waitObjectsContainer.Add(m_terminateWaitObj);
