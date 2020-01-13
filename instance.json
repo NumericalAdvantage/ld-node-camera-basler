@@ -23,7 +23,7 @@
         "AutoExposureContinuous" : true,
         "AutoGainContinuous" : true,
         "AutoFunctionProfile" : "MinimizeGain",
-        "NetworkInterfaceMTU" : 9000,
+        "NetworkInterfaceMTU" : 1500,
         "OutputFormat" : "RGB_U8"
     }
 }

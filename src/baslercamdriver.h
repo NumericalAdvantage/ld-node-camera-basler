@@ -30,7 +30,6 @@
 #define DEFAULT_FRAME_RATE 24
 #define DEFAULT_LUMINANCE_CONTROL 100
 #define NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE 50
-#define BASLER_RECOMMENDED_PACKET_SIZE 9000 //[4]
 #define DEFAULT_PACKET_SIZE 1500
 
 class BaslerCamDriver : public Pylon::CConfigurationEventHandler

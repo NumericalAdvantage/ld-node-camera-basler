@@ -10,7 +10,11 @@
 ## Hardware set-up
 - The camera used to develop this node was a BASLER acA1300-75gc. The camera can be powered over ethernet or via a hirose connector. In this particular setup I have used the PoE solution. To do this, a D-Link DGS-1008P Gigabit POE network switch was used.  
 - Tools called "IpConfigurator" and "PylonViewer" are crucial in setting up the SDK and in troubleshooting. They are part of the SDK download which is available from [here](https://www.baslerweb.com/en/sales-support/downloads/software-downloads/).
-- You should set your [MTU](https://www.wikiwand.com/en/Maximum_transmission_unit) to atleast [9000](https://docs.baslerweb.com/network-related-parameters-(gige-cameras).html#packet-size).
+
+## Tips for improving performance
+- Adjust the MTU in the node and the host system. You should set the [MTU](https://www.wikiwand.com/en/Maximum_transmission_unit) of your host system to [9000](https://docs.baslerweb.com/network-related-parameters-(gige-cameras).html#packet-size) for best results.
+- If you start the node and don't see any images or the data rate what you expect is not what you observe, it ma well be the case that you need to increase your MTU.
+- Note that the default value for this parameter is 1500 bytes, which may be low for higher framerates. 
 
 ## The node in action
 - When used with ld-node-image-2d-viewer-2:

@@ -222,15 +222,14 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     camera.MaxNumBuffer = NUMBER_OF_BUFFERS_FOR_GRAB_ENGINE;
 
                     GenApi::INodeMap& nodemap = camera.GetNodeMap();
-                    if(networkInterface >= BASLER_RECOMMENDED_PACKET_SIZE)
-                    {
-                        Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(BASLER_RECOMMENDED_PACKET_SIZE);
-                    }
-                    else
-                    {
+
+                    try {
                         Pylon::CIntegerParameter(nodemap, "GevSCPSPacketSize").SetValue(networkInterface);
                     }
-                    
+                    catch (const Pylon::GenericException& e)
+                    {
+                        throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                    }
                     
                     if(autoExposure || autoGain || autoGainOnce)
                     {
