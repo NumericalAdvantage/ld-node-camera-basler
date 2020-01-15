@@ -11,6 +11,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <pylon/PylonIncludes.h>
 #include <pylon/DeviceInfo.h>
@@ -50,6 +51,13 @@ public:
     int64_t m_NetworkInterfaceMTU = DEFAULT_PACKET_SIZE;
     std::string m_outputFormat = "";
     bool m_autoWhiteBalanceCorrection = false;
+    bool m_colorAdjustment = false;
+    std::vector<int64_t> m_red_hue_sat;
+    std::vector<int64_t> m_yellow_hue_sat;
+    std::vector<int64_t> m_green_hue_sat;
+    std::vector<int64_t> m_cyan_hue_sat;
+    std::vector<int64_t> m_blue_hue_sat;
+    std::vector<int64_t> m_magenta_hue_sat;
     Pylon::WaitObjectEx m_terminateWaitObj;
     Pylon::WaitObjects m_waitObjectsContainer;
 
@@ -68,7 +76,15 @@ public:
                     std::string autoFunctionProfile,
                     int64_t networkInterfaceMTU,
                     std::string outputFormat,
-                    bool autoWhiteBalanceCorrection) :
+                    bool autoWhiteBalanceCorrection,
+                    bool colorAdjustment,
+                    std::vector<int64_t> red_hue_sat,
+                    std::vector<int64_t> yellow_hue_sat,
+                    std::vector<int64_t> green_hue_sat,
+                    std::vector<int64_t> cyan_hue_sat,
+                    std::vector<int64_t> blue_hue_sat,
+                    std::vector<int64_t> magenta_hue_sat
+                    ) :
                     m_signalHandler(signalHandler),
                     m_nodeResources(nodeResources),
                     m_nodeDiscovery(nodeDiscovery),
@@ -85,6 +101,13 @@ public:
                     m_NetworkInterfaceMTU(networkInterfaceMTU),
                     m_outputFormat(outputFormat),
                     m_autoWhiteBalanceCorrection(autoWhiteBalanceCorrection),
+                    m_colorAdjustment(colorAdjustment),
+                    m_red_hue_sat(red_hue_sat),
+                    m_yellow_hue_sat(yellow_hue_sat),
+                    m_green_hue_sat(green_hue_sat),
+                    m_cyan_hue_sat(cyan_hue_sat),
+                    m_blue_hue_sat(blue_hue_sat),
+                    m_magenta_hue_sat(magenta_hue_sat),
                     m_terminateWaitObj(Pylon::WaitObjectEx::Create())
     {
         m_waitObjectsContainer.Add(m_terminateWaitObj);

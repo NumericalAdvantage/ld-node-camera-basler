@@ -35,7 +35,14 @@
             "AutoFunctionProfile": {"type" : "string", "default" : "Off"},
             "NetworkInterfaceMTU" : {"type" : "integer"},
             "OutputFormat" : {"type" : "string", "default" : "RGB_U8"},
-            "AutoWhiteBalanceCorrection" : {"type" : "boolean", "default" : false }
+            "AutoWhiteBalanceCorrection" : {"type" : "boolean", "default" : false },
+            "ColorAdjustment" : {"type" : "boolean", "default" : false},
+            "ColorAdjustment_Red" : {"type" : "array", "items" : { "type": "integer"}, "default" : [-30, 128]},
+            "ColorAdjustment_Yellow" : {"type" : "array", "items" : { "type": "integer"}, "default" : [7, 124]},
+            "ColorAdjustment_Green" : {"type" : "array", "items" : { "type": "integer"}, "default" : [0, 138]},
+            "ColorAdjustment_Cyan" : {"type" : "array", "items" : { "type": "integer"}, "default" : [9, 135]},
+            "ColorAdjustment_Blue" : {"type" : "array", "items" : { "type": "integer"}, "default" : [-5, 126]},
+            "ColorAdjustment_Magenta" : {"type" : "array", "items" : { "type": "integer"}, "default" : [25, 134]}
         },
         "required": ["CameraID"],
         "additionalProperties" : false

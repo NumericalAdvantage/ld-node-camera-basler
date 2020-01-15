@@ -182,7 +182,14 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                    Pylon::WaitObjects waitObjectsContainer,
                                    int64_t networkInterface,
                                    std::string outputFormat, 
-                                   bool whiteBalanceCorrection)
+                                   bool whiteBalanceCorrection,
+                                   bool colorAdjustment,
+                                   std::vector<int64_t> red_hue_sat,
+                                   std::vector<int64_t> yellow_hue_sat,
+                                   std::vector<int64_t> green_hue_sat,
+                                   std::vector<int64_t> cyan_hue_sat,
+                                   std::vector<int64_t> blue_hue_sat,
+                                   std::vector<int64_t> magenta_hue_sat)
 {
     Pylon::CTlFactory& tlFactory = Pylon::CTlFactory::GetInstance();
     Pylon::PylonAutoInitTerm autoInitTerm;
@@ -280,7 +287,9 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         }
                         else
                         {
-                            std::cout << "NO White balance applied" << std::endl;
+                            camera.AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
+                            Pylon::CBooleanParameter(nodemap, "AutoFunctionAOIUsageWhiteBalance").SetValue(true);
+                            camera.BalanceWhiteAuto.SetValue(BalanceWhiteAuto_Off);
                         }
                         
                         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("BayerBG8");
@@ -304,66 +313,116 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                         Pylon::CEnumParameter(nodemap, "PixelFormat").SetValue("Mono8");
                         image_format = link_dev::Format_GRAY_U8;
                     }
-                    try {
-                        Pylon::CBooleanParameter(nodemap, "ColorAdjustmentEnable").SetValue(true);
-                        
-                        
-                        
 
-                        //camera.ColorAdjustmentReset();
-
-
-                                           
-                        // Select red as the color to adjust
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Red");
-                        // Enter a floating point value for the red hue
-                        Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").SetValue(-1.125);
-                        // Enter a floating point value for the red saturation
-                        Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").SetValue(1.375);
-                        // Select cyan as the color to adjust
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Cyan");
-                        // Enter an integer value for the cyan hue
-                        Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(-36);
-                        // Enter an integer value for the cyan saturation
-                        Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(176);
-                        
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Red");
-
-                        std::cout << "Red H/S" << Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").GetValue() << " " << Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").GetValue() <<std::endl;
-
-
-
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Yellow");
-
-                        std::cout << "Yellow H/S" << Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").GetValue() << " " << Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").GetValue() <<std::endl;
-
-
-
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Green");
-
-                        std::cout << "Green H/S" << Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").GetValue() << " " << Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").GetValue() <<std::endl;
-
-
-
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Cyan");
-
-                        std::cout << "Cyan H/S" << Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").GetValue() << " " << Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").GetValue() <<std::endl;
-
-
-
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Blue");
-
-                        std::cout << "Blue H/S" << Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").GetValue() << " " << Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").GetValue() <<std::endl;
-
-                        Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Magenta");
-
-                        std::cout << "Magenta H/S" << Pylon::CFloatParameter(nodemap, "ColorAdjustmentHue").GetValue() << " " << Pylon::CFloatParameter(nodemap, "ColorAdjustmentSaturation").GetValue() <<std::endl;
-                    }
-                    catch (const Pylon::GenericException& e)
+                    if (colorAdjustment)
                     {
-                        throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                        if (!red_hue_sat.empty() || !yellow_hue_sat.empty() || !green_hue_sat.empty() ||
+                            !cyan_hue_sat.empty() || !blue_hue_sat.empty() || !magenta_hue_sat.empty())
+                        {
+                            Pylon::CBooleanParameter(nodemap, "ColorAdjustmentEnable").SetValue(true);
+                            camera.ColorAdjustmentReset();
+                            std::cout << "Color adjustment" << std::endl;
+                            if (!red_hue_sat.empty())
+                            {
+                                try
+                                {
+                                    Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Red");
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(red_hue_sat[0]);
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(red_hue_sat[1]);
+
+                                    std::cout << "Adjusting red" << std::endl;
+                                }
+                                catch (const Pylon::GenericException &e)
+                                {
+                                    throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                                }
+                            }
+
+                            if (!yellow_hue_sat.empty())
+                            {
+                                try
+                                {
+                                    Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Yellow");
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(yellow_hue_sat[0]);
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(yellow_hue_sat[1]);
+                                    std::cout << "Adjusting y" << std::endl;
+                                }
+                                catch (const Pylon::GenericException &e)
+                                {
+                                    throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                                }
+                            }
+
+                            if (!green_hue_sat.empty())
+                            {
+                                try
+                                {
+                                    Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Green");
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(green_hue_sat[0]);
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(green_hue_sat[1]);
+                                    std::cout << "Adjusting green" << std::endl;
+                                }
+                                catch (const Pylon::GenericException &e)
+                                {
+                                    throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                                }
+                            }
+
+                            if (!cyan_hue_sat.empty())
+                            {
+                                try
+                                {
+                                    Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Cyan");
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(cyan_hue_sat[0]);
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(cyan_hue_sat[1]);
+                                    std::cout << "Adjusting cyan" << std::endl;
+                                }
+                                catch (const Pylon::GenericException &e)
+                                {
+                                    throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                                }
+                            }
+
+                            if (!blue_hue_sat.empty())
+                            {
+                                try
+                                {
+                                    Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Blue");
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(blue_hue_sat[0]);
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(blue_hue_sat[1]);
+                                    std::cout << "Adjusting blue" << std::endl;
+                                }
+                                catch (const Pylon::GenericException &e)
+                                {
+                                    throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                                }
+                            }
+
+                            if (!magenta_hue_sat.empty())
+                            {
+                                try
+                                {
+                                    Pylon::CEnumParameter(nodemap, "ColorAdjustmentSelector").SetValue("Magenta");
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentHueRaw").SetValue(magenta_hue_sat[0]);
+                                    Pylon::CIntegerParameter(nodemap, "ColorAdjustmentSaturationRaw").SetValue(magenta_hue_sat[1]);
+                                    std::cout << "Adjusting magenta" << std::endl;
+                                }
+                                catch (const Pylon::GenericException &e)
+                                {
+                                    throw RUNTIME_EXCEPTION("Could not apply configuration. const GenericException caught  msg=%hs", e.what());
+                                }
+                            }
+                        }
                     }
-                    
+                    else
+                    {
+                        //make sure that the old settings of color adjustment are reset when the user restarts the node with 
+                        //no color adjustment.
+                        Pylon::CBooleanParameter(nodemap, "ColorAdjustmentEnable").SetValue(true);
+                        camera.ColorAdjustmentReset();
+                        Pylon::CBooleanParameter(nodemap, "ColorAdjustmentEnable").SetValue(false);    
+                    }
+
                     camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); 
                     while(camera.IsGrabbing() && terminate == false)
                     {
@@ -471,7 +530,14 @@ int BaslerCamDriver::run()
                                                              m_waitObjectsContainer,
                                                              m_NetworkInterfaceMTU,
                                                              m_outputFormat,
-                                                             m_autoWhiteBalanceCorrection);
+                                                             m_autoWhiteBalanceCorrection,
+                                                             m_colorAdjustment,
+                                                             m_red_hue_sat,
+                                                             m_yellow_hue_sat,
+                                                             m_green_hue_sat,
+                                                             m_cyan_hue_sat,
+                                                             m_blue_hue_sat,
+                                                             m_magenta_hue_sat);
 
     while(m_signalHandler.receiveSignal() != LINK2_SIGNAL_INTERRUPT); 
 
