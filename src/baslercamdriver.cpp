@@ -295,7 +295,7 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                     {
                                         if(!frameDropErrorOccurredOnce)
                                         {
-                                            std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl << " Further warnings will be supressed." << std::endl;
+                                            std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << "/n/n" << "Further warnings will be supressed." << std::endl;
                                             frameDropErrorOccurredOnce = true;
                                         }
                                     }
