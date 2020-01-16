@@ -33,12 +33,6 @@ void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64
     camera.AutoFunctionAOIWidth.SetValue(camera.Width.GetMax());
     camera.AutoFunctionAOIHeight.SetValue(camera.Height.GetMax());
     
-    //Remove factory set parameter limits.
-    camera.ParameterSelector.SetValue(ParameterSelector_Gain);
-    camera.RemoveLimits.SetValue(true);
-    camera.ParameterSelector.SetValue(ParameterSelector_AutoTargetValue);
-    camera.RemoveLimits.SetValue(true);
-    
     return;
 }
 
