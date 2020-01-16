@@ -112,11 +112,6 @@ void BaslerCamConfigEvents::OnOpened(Pylon::CInstantCamera& camera)
         
         height.SetValue(m_frameHeight);
         width.SetValue(m_frameWidth);
-
-        std::cout << "Frame rate before: " << frameRate.GetValue() << std::endl;
-        frameRate.SetValue(m_frameRate);
-        std::cout << "Frame rate after: " << frameRate.GetValue() << std::endl;
-        std::cout << "Frame rate resultant: " << resultingFrameRate.GetValue() << std::endl;
     }
     catch (const Pylon::GenericException& e)
     {
@@ -134,18 +129,6 @@ void printCameraDetails(Pylon::CBaslerGigEInstantCamera& camera)
     std::cout << "ModelName: " <<  camera.GetDeviceInfo().GetModelName() << std::endl;
     std::cout << "SerialNumber: " <<  camera.GetDeviceInfo().GetSerialNumber() << std::endl;
     std::cout << std::endl;
-    return;
-}
-
-void printErrors(std::map<uint32_t, uint64_t>& errors)
-{
-    std::map<uint32_t, uint64_t>::iterator errorsIt = errors.begin();
-    std::cout << std::endl << std::setw(10) << "Error   " << std::setw(10) << "Count" << std::endl;
-    while(errorsIt != errors.end())
-    {
-        std::cout << std::setw(10) << errorsIt->first << std::setw(10) << errorsIt->second << std::endl;
-        errorsIt++;
-    }
     return;
 }
 
@@ -169,7 +152,6 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
     Pylon::DeviceInfoList_t lstDevices;
     TlFactory.EnumerateDevices(lstDevices);
     Pylon::CGrabResultPtr ptrGrabResult;
-    std::map<uint32_t, uint64_t> errors;
     
     std::cout << "Number of devices found: " << lstDevices.size() << std::endl;
 
@@ -260,6 +242,8 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                     }
 
                     camera.StartGrabbing(Pylon::GrabStrategy_OneByOne); 
+                    bool frameDropErrorOccurredOnce = false;
+
                     while(camera.IsGrabbing() && terminate == false)
                     {
                         if(!waitObjectsContainer.WaitForAny(0xFFFFFFFF, &index))
@@ -309,14 +293,10 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
                                     }
                                     else
                                     {
-                                        //std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl;
-                                        if(errors.count(ptrGrabResult->GetErrorCode()) > 0)
-                                        {   
-                                            errors[ptrGrabResult->GetErrorCode()]++;
-                                        }    
-                                        else
+                                        if(!frameDropErrorOccurredOnce)
                                         {
-                                            errors.insert(std::make_pair(ptrGrabResult->GetErrorCode(), 1));
+                                            std::cerr << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << std::endl << " Further warnings will be supressed." << std::endl;
+                                            frameDropErrorOccurredOnce = true;
                                         }
                                     }
                                 }
@@ -331,7 +311,6 @@ void createCameraBySerialNrAndGrab(std:: string serialNr, uint64_t frameWidth,
 
                     ptrGrabResult.Release();
                     camera.StopGrabbing();
-                    printErrors(errors);
                 }
                 catch(const Pylon::GenericException &e)
                 {
