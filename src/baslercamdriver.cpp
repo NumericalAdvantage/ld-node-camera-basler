@@ -19,15 +19,6 @@ using namespace Basler_GigECameraParams;
 void setUpCameraForAutoFunctions(Pylon::CBaslerGigEInstantCamera& camera, uint64_t frameWidth,
                                  int64_t frameHeight)
 {
-    if(IsWritable(camera.OffsetX))
-    {
-        camera.OffsetX.SetValue(camera.OffsetX.GetMin());
-    }
-    if(IsWritable(camera.OffsetY))
-    {
-        camera.OffsetY.SetValue(camera.OffsetY.GetMin());
-    }
-
     camera.Width.SetValue(frameWidth);
     camera.Height.SetValue(frameHeight);
 
