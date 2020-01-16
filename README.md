@@ -12,7 +12,7 @@
 - Tools called "IpConfigurator" and "PylonViewer" are crucial in setting up the SDK and in troubleshooting. They are part of the SDK download which is available from [here](https://www.baslerweb.com/en/sales-support/downloads/software-downloads/).
 
 ## Tips for improving performance
-- Adjust the MTU in the node and the host system. You should set the [MTU](https://www.wikiwand.com/en/Maximum_transmission_unit) of your host system to [9000](https://docs.baslerweb.com/network-related-parameters-(gige-cameras).html#packet-size) for best results.
+- Adjust the MTU in the node and the host system. You should set the [MTU](https://www.wikiwand.com/en/Maximum_transmission_unit) of your host system to [9012](https://docs.baslerweb.com/network-related-parameters-(gige-cameras).html#packet-size) for best results. Note that Basler actually recommends a value for `9014`, but we found that if that value is used, the camera doesn't accept it and produces the following error :  `The difference between Value = 9014 and Min = 220 must be dividable without rest by Inc = 4`. Hence the value recommended is `9012`.
 - If you start the node and don't see any images or the data rate what you expect is not what you observe, it ma well be the case that you need to increase your MTU.
 - Note that the default value for this parameter is 1500 bytes, which may be low for higher framerates. 
 
