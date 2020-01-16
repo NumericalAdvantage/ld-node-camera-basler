@@ -45,19 +45,10 @@ public:
     uint64_t m_frameWidth = DEFAULT_FRAME_WIDTH;
     uint64_t m_frameHeight = DEFAULT_FRAME_HEIGHT;
     uint64_t m_frameRate = DEFAULT_FRAME_RATE;
-    uint64_t m_luminanceControl = DEFAULT_LUMINANCE_CONTROL;
-    bool m_autoGainOnce = true, m_autoExposure = true, m_autoGain = false;
+    bool m_autoExposure = true, m_autoGain = false;
     std::string m_autoFunctionProfile = "";
     int64_t m_NetworkInterfaceMTU = DEFAULT_PACKET_SIZE;
     std::string m_outputFormat = "";
-    bool m_autoWhiteBalanceCorrection = false;
-    bool m_colorAdjustment = false;
-    std::vector<int64_t> m_red_hue_sat;
-    std::vector<int64_t> m_yellow_hue_sat;
-    std::vector<int64_t> m_green_hue_sat;
-    std::vector<int64_t> m_cyan_hue_sat;
-    std::vector<int64_t> m_blue_hue_sat;
-    std::vector<int64_t> m_magenta_hue_sat;
     Pylon::WaitObjectEx m_terminateWaitObj;
     Pylon::WaitObjects m_waitObjectsContainer;
 
@@ -69,21 +60,11 @@ public:
                     uint64_t frameWidth, 
                     uint64_t frameHeight,
                     uint64_t frameRate,
-                    uint64_t luminanceControl,
-                    bool autoGainOnce,
                     bool autoExposure,
                     bool autoGain,
                     std::string autoFunctionProfile,
                     int64_t networkInterfaceMTU,
-                    std::string outputFormat,
-                    bool autoWhiteBalanceCorrection,
-                    bool colorAdjustment,
-                    std::vector<int64_t> red_hue_sat,
-                    std::vector<int64_t> yellow_hue_sat,
-                    std::vector<int64_t> green_hue_sat,
-                    std::vector<int64_t> cyan_hue_sat,
-                    std::vector<int64_t> blue_hue_sat,
-                    std::vector<int64_t> magenta_hue_sat
+                    std::string outputFormat
                     ) :
                     m_signalHandler(signalHandler),
                     m_nodeResources(nodeResources),
@@ -93,21 +74,11 @@ public:
                     m_frameWidth(frameWidth),
                     m_frameHeight(frameHeight),
                     m_frameRate(frameRate),
-                    m_luminanceControl(luminanceControl),
-                    m_autoGainOnce(autoGainOnce),
                     m_autoExposure(autoExposure),
                     m_autoGain(autoGain),
                     m_autoFunctionProfile(autoFunctionProfile),
                     m_NetworkInterfaceMTU(networkInterfaceMTU),
                     m_outputFormat(outputFormat),
-                    m_autoWhiteBalanceCorrection(autoWhiteBalanceCorrection),
-                    m_colorAdjustment(colorAdjustment),
-                    m_red_hue_sat(red_hue_sat),
-                    m_yellow_hue_sat(yellow_hue_sat),
-                    m_green_hue_sat(green_hue_sat),
-                    m_cyan_hue_sat(cyan_hue_sat),
-                    m_blue_hue_sat(blue_hue_sat),
-                    m_magenta_hue_sat(magenta_hue_sat),
                     m_terminateWaitObj(Pylon::WaitObjectEx::Create())
     {
         m_waitObjectsContainer.Add(m_terminateWaitObj);

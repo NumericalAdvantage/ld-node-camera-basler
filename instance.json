@@ -18,20 +18,10 @@
         "ImageWidth" : 1280,
         "ImageHeight" : 1024,
         "FrameRate" : 30,
-        "LuminanceControl" : 100,
-        "AutoGainOnce" : false,
         "AutoExposureContinuous" : true,
         "AutoGainContinuous" : true,
         "AutoFunctionProfile" : "MinimizeGain",
         "NetworkInterfaceMTU" : 1500,
-        "OutputFormat" : "RGB_U8",
-        "AutoWhiteBalanceCorrection" : false,
-        "ColorAdjustment" : false,
-        "ColorAdjustment_Red" : [-30, 128],
-        "ColorAdjustment_Yellow" : [7, 124],
-        "ColorAdjustment_Green" : [127, 255],
-        "ColorAdjustment_Cyan" : [9, 135],
-        "ColorAdjustment_Blue" : [-5, 126],
-        "ColorAdjustment_Magenta" : [25, 134]
+        "OutputFormat" : "GRAY_U8"
     }
 }

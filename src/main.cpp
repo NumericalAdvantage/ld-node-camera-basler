@@ -29,21 +29,11 @@ int main(int argc, char** argv)
                                         rootNode.getUInt("ImageWidth"),
                                         rootNode.getUInt("ImageHeight"),
                                         rootNode.getUInt("FrameRate"),
-                                        rootNode.getUInt("LuminanceControl"),
-                                        rootNode.getBoolean("AutoGainOnce"),
                                         rootNode.getBoolean("AutoExposureContinuous"),
                                         rootNode.getBoolean("AutoGainContinuous"),
                                         rootNode.getString("AutoFunctionProfile"),
                                         rootNode.getInt("NetworkInterfaceMTU"),
                                         rootNode.getString("OutputFormat"),
-                                        rootNode.getBoolean("AutoWhiteBalanceCorrection"),
-                                        rootNode.getBoolean("ColorAdjustment"),
-                                        rootNode.getInts("ColorAdjustment_Red"),
-                                        rootNode.getInts("ColorAdjustment_Yellow"),
-                                        rootNode.getInts("ColorAdjustment_Green"),
-                                        rootNode.getInts("ColorAdjustment_Cyan"),
-                                        rootNode.getInts("ColorAdjustment_Blue"),
-                                        rootNode.getInts("ColorAdjustment_Magenta")
                                         };
 
         baslercamdriver.run(); //Runs until interrupt signal is sent to the program.
