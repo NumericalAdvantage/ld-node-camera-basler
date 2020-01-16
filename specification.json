@@ -31,7 +31,7 @@
             "AutoExposureContinuous" : { "type" : "boolean", "default" : true},
             "AutoGainContinuous" : { "type" : "boolean", "default" : false},
             "AutoFunctionProfile": {"type" : "string", "default" : "Off"},
-            "NetworkInterfaceMTU" : {"type" : "integer"},
+            "NetworkInterfaceMTU" : {"type" : "integer", "default": 1500},
             "OutputFormat" : {"type" : "string", "default" : "RGB_U8"}
         },
         "required": ["CameraID"],
