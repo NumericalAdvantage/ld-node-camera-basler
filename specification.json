@@ -30,9 +30,9 @@
             "FrameRate" : { "type" : "number", "default" : 24},
             "AutoExposureContinuous" : { "type" : "boolean", "default" : true},
             "AutoGainContinuous" : { "type" : "boolean", "default" : false},
-            "AutoFunctionProfile": {"type" : "string", "default" : "Off"},
+            "AutoFunctionProfile": {"type" : "string", "enum": ["MinimizeGain", "MinimizeExposure", "Off"], "default" : "Off"},
             "NetworkInterfaceMTU" : {"type" : "integer", "default": 1500},
-            "OutputFormat" : {"type" : "string", "default" : "RGB_U8"}
+            "OutputFormat" : {"type" : "string", "enum": ["GRAY_U8", "RGB_U8", "BGR_U8"], "default" : "RGB_U8"}
         },
         "required": ["CameraID"],
         "additionalProperties" : false
